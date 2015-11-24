@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(knowrob_ubx)
+project(knowrob_rsg)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -99,7 +99,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES knowrob_ubx
+#  LIBRARIES knowrob_rsg
 #  CATKIN_DEPENDS rosprolog
 #  DEPENDS system_lib
 )
@@ -116,24 +116,24 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(knowrob_ubx
-#   src/${PROJECT_NAME}/knowrob_ubx.cpp
+# add_library(knowrob_rsg
+#   src/${PROJECT_NAME}/knowrob_rsg.cpp
 # )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(knowrob_ubx ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(knowrob_rsg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(knowrob_ubx_node src/knowrob_ubx_node.cpp)
+# add_executable(knowrob_rsg_node src/knowrob_rsg_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(knowrob_ubx_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(knowrob_rsg_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(knowrob_ubx_node
+# target_link_libraries(knowrob_rsg_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -152,7 +152,7 @@ include_directories(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS knowrob_ubx knowrob_ubx_node
+# install(TARGETS knowrob_rsg knowrob_rsg_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -177,7 +177,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_knowrob_ubx.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_knowrob_rsg.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
