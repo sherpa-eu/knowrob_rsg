@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY knowrob "http://knowrob.org/kb/knowrob.owl#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.knowrob.org/kb/knowrob.owl#"
+     xml:base="http://www.knowrob.org/kb/knowrob.owl"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:knowrob="http://knowrob.org/kb/knowrob.owl#">
+  
+    <owl:Ontology rdf:about="http://www.knowrob.org/kb/knowrob-gis.owl">
+        <owl:imports rdf:resource="package://knowrob_common/owl/knowrob.owl"/>
+    </owl:Ontology>
+    
+
+    <owl:Class rdf:about="&knowrob;GIS-Coordinate">
+        <rdfs:subClassOf rdf:resource="&knowrob;Point3D"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;GIS-Object"/>
+    </owl:Class>
+    
+    
+    <owl:Class rdf:about="&knowrob;Coordinate">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;Longitude"/>
+                <owl:someValuesFrom rdf:resource="&xsd;float"/>
+                <owl:Cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:Cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;Latitude"/>
+                <owl:someValuesFrom rdf:resource="&xsd;float"/>
+                <owl:Cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:Cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;ReferenceSystem"/>
+                <owl:someValuesFrom rdf:resource="&xsd;string"/>
+                <owl:maxCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+    <owl:Class rdf:about="&knowrob;GIS-Object">
+        <rdfs:subClassOf rdf:resource="&knowrob;SpatialThing-Localized"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;Coordinate"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;GIS-describedBy"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;GIS-Property"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;GIS-atCoordinate"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Coordinate"/>
+                <owl:maxCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+    
+    
+    <owl:Class rdf:about="&knowrob;GIS-Property">
+        <rdfs:comment rdf:datatype="&xsd;string">This class is used to descibe one KeyValue Pair that
+          
+          </rdfs:comment>
+        <rdfs:subClassOf rdf:resource="&knowrob;Thing"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#GIS-Key" />
+                <owl:Cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:Cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#GIS-Value" />
+                <owl:Cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:Cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:ObjectProperty rdf:about="&knowrob;GIS-atCoordinate">
+        <rdfs:range rdf:resource="&knowrob;Coordinate"/>
+        <rdfs:domain rdf:resource="&knowrob;SpatialThing-Localized"/>
+    </owl:ObjectProperty>    
+    
+    <owl:ObjectProperty rdf:about="&knowrob;GIS-Key">
+        <rdfs:range rdf:resource="&xsd;String"/>
+        <rdfs:domain rdf:resource="&knowrob;GIS-Property"/>
+    </owl:ObjectProperty>    
+    <owl:ObjectProperty rdf:about="&knowrob;GIS-Value">
+        <rdfs:range rdf:resource="&xsd;String"/>
+        <rdfs:domain rdf:resource="&knowrob;GIS-Property"/>
+    </owl:ObjectProperty>    
+    
+    <owl:ObjectProperty rdf:about="&knowrob;GIS-describedBy">
+        <rdfs:range rdf:resource="&knowrob;GIS-Property"/>
+        <rdfs:domain rdf:resource="&knowrob;GIS-Object"/>
+    </owl:ObjectProperty>    
+    
+    <owl:ObjectProperty rdf:about="&knowrob;Longitude">
+        <rdfs:range rdf:resource="&xsd;float"/>
+        <rdfs:domain rdf:resource="&knowrob;Coordinate"/>
+    </owl:ObjectProperty>    
+    
+    <owl:ObjectProperty rdf:about="&knowrob;Latitude">
+        <rdfs:range rdf:resource="&xsd;float"/>
+        <rdfs:domain rdf:resource="&knowrob;Coordinate"/>
+    </owl:ObjectProperty>    
+    
+    <owl:ObjectProperty rdf:about="&knowrob;ReferenceSystem">
+        <rdfs:range rdf:resource="&xsd;string"/>
+        <rdfs:domain rdf:resource="&knowrob;Coordinate"/>
+    </owl:ObjectProperty>    
+  
+    
+    
+    <owl:Class rdf:about="&knowrob;ManMade">
+        <rdfs:subClassOf rdf:resource="&knowrob;SpatialThing-Localized"/>
+    </owl:Class>
+    
+    <owl:ObjectProperty rdf:about="&knowrob;ReferenceSystem">
+        <rdfs:range rdf:resource="&xsd;string"/>
+        <rdfs:domain rdf:resource="&knowrob;Coordinate"/>
+    </owl:ObjectProperty>   
+    
+    
+    
+    <owl:Class rdf:about="&knowrob;GIS-Point">
+      <rdfs:subClassOf rdf:resource="&knowrob;Coordinate"/>
+    </owl:Class>
+    
+    <owl:Class rdf:about="&knowrob;Path">
+        <rdfs:subClassOf rdf:resource="&knowrob;SpatialThing-Localized"/>
+        <!-- TODO Collection of nodes -->
+    </owl:Class>
+    <owl:Class rdf:about="&knowrob;Polygon">
+      <rdfs:subClassOf rdf:resource="&knowrob;Path"/>
+        <!-- TODO Collection of nodes -->
+    </owl:Class>
+    
+    <owl:Class rdf:about="&knowrob;ConvexPolygon">
+      <rdfs:subClassOf rdf:resource="&knowrob;Polygon"/>
+        <!-- TODO Last Node is forst -->
+    </owl:Class>
+    
+    
+    <owl:Class rdf:about="&knowrob;PathNetwork">
+        <!-- TODO Last Node is first 
+          Set of paths
+        
+          Definition of crossroads
+        -->
+    </owl:Class>
+    
+    <owl:Class rdf:about="&knowrob;Mesh">
+        <!-- TODO Last Node is first 
+          Set of Polygons
+        
+          
+        -->
+    </owl:Class>
+    
+    
+    <owl:ObjectProperty rdf:about="&knowrob;connectedWith">
+        <rdfs:range rdf:resource="&knowrob;GIS-Point"/>
+        <rdfs:domain rdf:resource="&knowrob;GIS-Point"/>
+    </owl:ObjectProperty>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.5.0) http://owlapi.sourceforge.net -->
+
