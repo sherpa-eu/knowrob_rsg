@@ -24,7 +24,13 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.NodeMain;
 import org.ros.node.topic.Subscriber;
 
+import java.util.List;
+
 import javax.vecmath.Matrix4d;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.util.JSONUtils;
 
 import zmq.*;
 
@@ -38,19 +44,15 @@ public class KB2RSG extends AbstractNodeMain {
     return GraphName.of("rosjava/listener");
   }
 
-  public float[] queryTransform(String id, String ref_id){
-	  //float[16] rot_mat;
-      log.info("I heard nothing");
-      ctx = ZMQ.init(1);
-
-
-      sc = ZMQ.socket(ctx, ZMQ.ZMQ_REQ);
-      boolean rc = ZMQ.connect(sc, "tcp://127.0.0.1:22422");
+  public double[] queryTransform(String id, String ref_id,String time){
+	  double[] pose_arr;
+	  
+      //log.info("I heard nothing");
       String data= "{ "+
       			"\"@worldmodeltype\": \"RSGQuery\","+
       			"\"query\": \"GET_TRANSFORM\","+
-      			"\"id\": \"92876bfd-3b6d-44a3-a9a1-a7b36c53acd1\","+
-      			"\"idReferenceNode\": \"e379121f-06c6-4e21-ae9d-ae78ec1986a1\","+
+      			"\"id\": \""+id+"\","+
+      			"\"idReferenceNode\": \""+ref_id+"\","+
       			"\"timeStamp\": {"+
       			"	\"@stamptype\": \"TimeStampDate\","+
       		"		\"stamp\": \"2015-11-09T16:16:44Z\","+
@@ -58,21 +60,49 @@ public class KB2RSG extends AbstractNodeMain {
 		"}";
       ZMQ.send(sc,data.getBytes(ZMQ.CHARSET),data.length(),0);
       Msg msg = ZMQ.recv(sc, 0);
-      log.info(msg.toString());
-      log.info(new String(msg.data()));
-      ZMQ.close(sc);
-      ZMQ.term(ctx);
       
-      log.info("I heard nothing");
-	  return new float[16];
+      JSONObject jsonObject = JSONObject.fromObject(new String(msg.data()));
+      
+      JSONObject transform =  jsonObject.getJSONObject("transform");
+      //List transform_list =  JSONArray 
+      JSONArray array = transform.getJSONArray("matrix");
+      JSONArray r0 =  array.getJSONArray(0);
+      JSONArray r1 =  array.getJSONArray(1);
+      JSONArray r2 =  array.getJSONArray(2);
+      JSONArray r3 =  array.getJSONArray(3);
+      
+      //log.info("("+      r0.getDouble(3)+","+      r1.getDouble(3)+","+      r2.getDouble(3)+")");
+      //log.info(new String(msg.data()));
+      //ZMQ.close(sc);
+      //ZMQ.term(ctx);
+      
+	  //Matrix4d poseMat = new Matrix4d(pose_arr);
+      
+      
+      pose_arr =  new double[]{
+			  r0.getDouble(0),r0.getDouble(1),r0.getDouble(2),r0.getDouble(3),
+			  r1.getDouble(1),r1.getDouble(1),r1.getDouble(2),r1.getDouble(3),
+			  r2.getDouble(0),r2.getDouble(1),r2.getDouble(2),r2.getDouble(3),
+			  r3.getDouble(0),r3.getDouble(1),r3.getDouble(2),r3.getDouble(3)};
+      return pose_arr;
   }
+  
+  
   Log log;
   SocketBase sc;
   Ctx ctx;
   @Override
   public void onStart(ConnectedNode connectedNode) {
-    final Log log = connectedNode.getLog();
-    
+	  	log = connectedNode.getLog();
+
+    	ctx = ZMQ.init(1);
+
+
+    	sc = ZMQ.socket(ctx, ZMQ.ZMQ_REQ);
+    	boolean rc = ZMQ.connect(sc, "tcp://127.0.0.1:22422");
+    	queryTransform("92876bfd-3b6d-44a3-a9a1-a7b36c53acd1" ,"e379121f-06c6-4e21-ae9d-ae78ec1986a1" , null);
+    	
+    	/**
         log.info("I heard nothing");
         ctx = ZMQ.init(1);
 
@@ -97,6 +127,6 @@ public class KB2RSG extends AbstractNodeMain {
         ZMQ.term(ctx);
         
         log.info("I heard nothing");
-    
+    	*/
   }
 }
