@@ -31,6 +31,8 @@
 
 :- register_ros_package(knowrob_common).
 :- register_ros_package(knowrob_rsg).
+:- register_ros_package(knowrob_objects).
+
 
 :- use_module(library('knowrob-rsg')).
 :- use_module(library('knowrob_owl')).

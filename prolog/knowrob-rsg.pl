@@ -32,10 +32,12 @@
 
 :- module(knowrob_rsg,
     [
-    
+      rsg_interface/0,
+      rsg_interface/1,
       create_human_detection_perception/4,
       create_sherpa_event/6,
-      add_sherpa_object_perception/2    
+      add_sherpa_object_perception/2 ,   
+      rsg_pose/3
   ]).
 
 :- use_module(library('semweb/rdf_db')).
@@ -44,6 +46,7 @@
 :- use_module(library('owl')).
 :- use_module(library('rdfs_computable')).
 :- use_module(library('knowrob_owl')).
+:- use_module(library('jpl')).
 
 :- rdf_db:rdf_register_ns(knowrob, 'http://knowrob.org/kb/knowrob.owl#', [keep(true)]).
 
@@ -55,15 +58,43 @@
   
   
   
+
+:- assert(rsg_int(fail)).
+rsg_interface :- rsg_interface(_).
+
+rsg_interface(RSG) :-
+    rsg_int(fail),
+    jpl_new('org.iai.knowrob_rsg.RSGConnection', [], RSG),
+    retract(rsg_int(fail)),
+    assert(rsg_int(RSG)),!.
+
+rsg_interface(DB) :-
+    rsg_int(DB).
+
+
+  
+  
 add_sherpa_object_perception(_, 'Foo').
 add_sherpa_object_perception('Bar', _ ).
   
+rsg_pose(From,To,PoseMat):-
+  rsg_interface(RSG),
+  jpl_call(RSG,'queryTransform', 
+  [From,To], JplArr),
+  jpl_array_to_list(JplArr, PoseMat).
   
-create_human_detection_perception(_,_,_,1).
+
+
+  
+  
+create_human_detection_perception(_,_,_,1) :-
+fail.
 
 
 create_sherpa_event(EventClass,GeoPose,UUID,Time,Props,EventInst) :-
 fail.
+
+
 
 
 create_sherpa_event_instance(EventType, TimePoint,Event) :-
