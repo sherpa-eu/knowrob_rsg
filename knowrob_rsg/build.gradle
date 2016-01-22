@@ -30,12 +30,10 @@ dependencies {
   /* An external maven artifact dependency */
   compile 'org.ros.rosjava_core:rosjava:[0.2,0.3)'
   compile 'org.knowrob.knowrob_common:knowrob_common:[0.1,)'
-   compile 'org.zeromq:jeromq:[0.3,)'
-  /*
-   compile 'org.zeromq.jeromq:[0.3,)'
-   */
-  /* Example of a local subproject dependency */ 
-  /* compile project(':sibling_gradle_project') */
+  compile 'org.zeromq:jeromq:[0.3,)'
+  compile 'net.sf.json-lib:json-lib:2.4:jdk15'
+
+  
 }
 
 task writeClasspath << {
