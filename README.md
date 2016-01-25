@@ -1,5 +1,6 @@
-# knowrob_rsg
-This repository contains ontologies and prolog rules that connect knowrob with the RobotSceneGraph(RSG) Library.
+# KNOWROB RobotSceneGraph represntation
+
+The package knowrob_rsg contains ontologies and prolog rules that connect knowrob with the RobotSceneGraph(RSG) Library.
 It is developed in the context of the sherpa eu project and focuses on outdoor rescue mission with mixed human robot Teams.
 
 The software provided by this package offers functionality for the following three use cases:
