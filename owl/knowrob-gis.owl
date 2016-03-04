@@ -22,12 +22,12 @@
         <owl:imports rdf:resource="package://knowrob_common/owl/knowrob.owl"/>
     </owl:Ontology>
     
-
+    <!--
     <owl:Class rdf:about="&knowrob;GIS-Coordinate">
         <rdfs:subClassOf rdf:resource="&knowrob;Point3D"/>
         <rdfs:subClassOf rdf:resource="&knowrob;GIS-Object"/>
     </owl:Class>
-    
+    -->
     
     <owl:Class rdf:about="&knowrob;Coordinate">
         <rdfs:subClassOf>
@@ -64,14 +64,31 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&knowrob;GIS-atCoordinate"/>
-                <owl:someValuesFrom rdf:resource="&knowrob;Coordinate"/>
-                <owl:maxCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxCardinality>
+                <owl:onProperty rdf:resource="&knowrob;withRSG-ID"/>
+                <owl:someValuesFrom rdf:resource="&xsd;String"/>
+                <owl:Cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:Cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
     
     
+    <owl:Class rdf:about="&knowrob;GIS-Perception">
+        <rdfs:subClassOf rdf:resource="&knowrob;SemanticMapPerception"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;GIS-atCoordinate"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Coordinate"/>
+                <owl:maxCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;GIS-objectActedOn"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;GIS-Object"/>
+                <owl:maxCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
     
     <owl:Class rdf:about="&knowrob;GIS-Property">
         <rdfs:comment rdf:datatype="&xsd;string">This class is used to descibe one KeyValue Pair that
@@ -92,8 +109,22 @@
         </rdfs:subClassOf>
     </owl:Class>
 
+    <owl:ObjectProperty rdf:about="&knowrob;withRSG-ID">
+        <rdfs:range rdf:resource="&xsd;String"/>
+        <rdfs:domain rdf:resource="&knowrob;SpatialThing-Localized"/>
+    </owl:ObjectProperty>   
+    
+    <owl:ObjectProperty rdf:about="&knowrob;perceivedFrom">
+        <rdfs:range rdf:resource="&knowrob;Coordinate"/>
+        <rdfs:domain rdf:resource="&knowrob;SpatialThing-Localized"/>
+    </owl:ObjectProperty>   
+    
     <owl:ObjectProperty rdf:about="&knowrob;GIS-atCoordinate">
         <rdfs:range rdf:resource="&knowrob;Coordinate"/>
+        <rdfs:domain rdf:resource="&knowrob;SpatialThing-Localized"/>
+    </owl:ObjectProperty>    
+    <owl:ObjectProperty rdf:about="&knowrob;GIS-objectActedOn">
+        <rdfs:range rdf:resource="&knowrob;GIS-Object"/>
         <rdfs:domain rdf:resource="&knowrob;SpatialThing-Localized"/>
     </owl:ObjectProperty>    
     

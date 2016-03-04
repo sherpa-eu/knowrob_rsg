@@ -37,7 +37,8 @@
       create_human_detection_perception/4,
       create_sherpa_event/6,
       add_sherpa_object_perception/2 ,   
-      rsg_pose/3
+      rsg_pose/3,
+      generate_rsg_perception/4
   ]).
 
 :- use_module(library('semweb/rdf_db')).
@@ -54,7 +55,8 @@
 :- rdf_meta
   create_human_detection_perception(r,+,+,-),
   create_sherpa_event(r,+,+,+,+,-),
-  add_sherpa_object_perception(r,r).
+  add_sherpa_object_perception(r,r),
+  generate_rsg_perception(r,r,r,-).
   
   
   
@@ -76,6 +78,11 @@ rsg_interface(DB) :-
   
 add_sherpa_object_perception(_, 'Foo').
 add_sherpa_object_perception('Bar', _ ).
+
+
+add_rsg_point(Id,[Longitude,Latidute],Attr, Perception):-
+    rdf_instance_from_class('http://knowrob.org/kb/knowrob.owl#GIS-Coordinate', Event),
+  rdf_assert(Event, rdf:type, 'http://knowrob.org/kb/knowrob.owl#GIS-Coordinate').
   
 rsg_pose(From,To,PoseMat):-
   rsg_interface(RSG),
@@ -109,7 +116,9 @@ create_sherpa_event_instance(EventType, TimePoint,Event) :-
 geo_reference_system_type(wgs_84,'WGS_84').
   
   
-  
+%%get height at
+%% It is realy important to get the altitude of the points ithink i need a java service for that
+
 create_geo_coord([Long,Lat], GeoPoseInst) :-
    create_geo_coord([Long,Lat,0],'WGS_84',GeoPoseInst).
 
@@ -120,12 +129,65 @@ create_geo_coord([Long,Lat,Alt], GeoPoseInst) :-
 create_geo_coord([Long,Lat],RefSystem, GeoPoseInst) :-
    create_geo_coord([Long,Lat,0],RefSystem,GeoPoseInst).
 
+%add additional overrides for altitude and ReferenceSystem
+generate_rsg_perception(Id,[Longitude,Latidute],Attrs,Perception):-
+    create_rsg_coordinate([Longitude,Latidute], Point),
+    create_rsg_point_Node(Id,Attrs, Object),
+    create_rsg_perception(Point,Object,Perception).
+    
+create_rsg_perception(Point,Object,Perception):-
+    rdf_instance_from_class(knowrob:'GIS-Perception', Perception),
+    rdf_assert(Perception,knowrob:'GIS-objectActedOn',Object),
+    rdf_assert(Perception,knowrob:'GIS-atCoordinate',Point),    
+    rdf_assert(Perception, rdf:type, 'http://knowrob.org/kb/knowrob.owl#GIS-Perception').
+    
+   
+create_rsg_coordinate([Longitude,Latidute], Point):-
+    %rdf_instance_from_class('http://knowrob.org/kb/knowrob.owl#GIS-Perception', Perception),
+    %rdf_assert(Perception, rdf:type, 'http://knowrob.org/kb/knowrob.owl#GIS-Perception'),
+    %rdf_instance_from_class('http://knowrob.org/kb/knowrob.owl#GIS-Coordinate', Point),
+    geo_reference_system_type(wgs_84,RefSystem),
+    create_geo_coord([Longitude,Latidute,0.0],RefSystem,Point).
+    
+    
+create_rsg_point_Node(Id,Attrs, Object):-
+    rdf_instance_from_class('http://knowrob.org/kb/knowrob.owl#GIS-Object', Object),
+    rdf_assert(Object,'http://knowrob.org/kb/knowrob.owl#withRSG-ID',literal(type(xsd:string,Id))),
+    findall(KVPs,(member([K,V],Attrs),
+                    create_gis_property(K,V, Property),
+                    rdf_assert(Object,'http://knowrob.org/kb/knowrob.owl#GIS-describedBy',Property)
+                    ),_).
+
+create_rsg_point(Id,[Longitude,Latidute],Attrs, Point):-
+    rdf_instance_from_class('http://knowrob.org/kb/knowrob.owl#GIS-Perception', Perception),
+    %rdf_assert(Perception, rdf:type, 'http://knowrob.org/kb/knowrob.owl#GIS-Perception'),
+    rdf_instance_from_class('http://knowrob.org/kb/knowrob.owl#GIS-Coordinate', Point),
+    geo_reference_system_type(wgs_84,RefSystem),
+    create_geo_coord([Longitude,Latidute,0.0],RefSystem,Pose),
+    rdf_assert(Point,knowrob:'GIS-atCoordinate',Pose),
+    
+    findall(KVPs,(member([K,V],Attrs),
+                    create_gis_property(K,V, Property),
+                    rdf_assert(Point,'http://knowrob.org/kb/knowrob.owl#GIS-describedBy',Property)
+                    ),_),
+    rdf_assert(Point, rdf:type, 'http://knowrob.org/kb/knowrob.owl#GIS-Coordinate').
+    
+  
+create_gis_property(Key,Value, Property):-
+  rdf_instance_from_class(knowrob:'GIS-Property',Property),
+  rdf_assert(Property,'http://knowrob.org/kb/knowrob.owl#GIS-Key', literal(type(xsd:string, Key))),
+  rdf_assert(Property,'http://knowrob.org/kb/knowrob.owl#GIS-Value', literal(type(xsd:string, Value))).
+  %rdf_assert(Property, rdf:type, knowrob:'GIS-Property').
+
+
+
 create_geo_coord([Long,Lat,Alt],RefSystem, GeoPoseInst) :-
 
-  rdf_instance_from_class(knowrob:'GeoCoord', GeoPoseInst),
+  rdf_instance_from_class(knowrob:'Coordinate', GeoPoseInst),
 
   rdf_assert(GeoPoseInst,'http://knowrob.org/kb/knowrob.owl#Longitude',literal(type(xsd:float, Long))),
   rdf_assert(GeoPoseInst,'http://knowrob.org/kb/knowrob.owl#Latitude',literal(type(xsd:float, Lat))),
   rdf_assert(GeoPoseInst,'http://knowrob.org/kb/knowrob.owl#Altitude',literal(type(xsd:float, Alt))),
   
   rdf_assert(GeoPoseInst,'http://knowrob.org/kb/knowrob.owl#ReferenceSystem',RefSystem).
+  %rdf_assert(GeoPoseInst, rdf:type, knowrob:'Coordinate').
