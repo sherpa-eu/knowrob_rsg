@@ -1,7 +1,7 @@
 /** knowrob_rsg Reasoning about robot components and capabilities
 
 
-  Copyright (C) 2016 Benjamin Brieber
+  Copyright (C) 2017 Asil Kaan Bozcuoglu, Benjamin Brieber
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,8 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+  @author Asil Kaan Bozcuoglu
   @author Benjamin Brieber
   @license BSD
 */
@@ -34,9 +36,13 @@
     [
       rsg_interface/0,
       rsg_interface/1,
-      create_human_detection_perception/4,
-      create_sherpa_event/6,
-      add_sherpa_object_perception/2 ,   
+      query_root_node/1,
+      query_wgs_signal/1,
+      insert_object/4,
+      rsg_dump_to_pdf/2,
+      move_pdf_to_docker/2,
+
+      %%%%%%%%%%%%%%%%%%%%% 
       rsg_pose/3,
       generate_rsg_perception/4
   ]).
@@ -53,9 +59,6 @@
 
 
 :- rdf_meta
-  create_human_detection_perception(r,+,+,-),
-  create_sherpa_event(r,+,+,+,+,-),
-  add_sherpa_object_perception(r,r),
   generate_rsg_perception(r,r,r,-).
   
   
@@ -74,32 +77,57 @@ rsg_interface(DB) :-
     rsg_int(DB).
 
 
-  
-  
-add_sherpa_object_perception(_, 'Foo').
-add_sherpa_object_perception('Bar', _ ).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+query_root_node(Root) :-
+    rsg_interface(RSG),
+    jpl_call(RSG,'queryRootNode', [], Root).
+
+
+query_wgs_signal(Wgs) :-
+    rsg_interface(RSG),
+    jpl_call(RSG,'queryWgs', [], Wgs).
+
+insert_object(Uri, Type, ObjectId, TransformId) :-
+    current_object_pose(Uri, PoseList),
+    PoseList =  [M00, M01, M02, M03, M10, M11, M12, M13, M20, M21, M22, M23, M30, M31, M32, M33], 
+    jpl_list_to_array(PoseList, Array), 
+    query_wgs_signal(Wgs),
+    jpl_call(RSG,'insertNode', [Uri, WgsId], ObjectId), 
+    jpl_call(RSG,'insertTransform', [ObjectId, WgsId, Array], TransformId).
+
+rsg_dump_to_pdf(Root, Path) :-
+    rsg_interface(RSG),
+    jpl_call(RSG,'applyActionDot', [@(false)], _A), 
+    jpl_call(RSG,'applyActionDot', [@(true)], _B), 
+    jpl_call(RSG,'printDot', [Path, Root], _C). 
+
+move_pdf_to_docker(Path, FileName) :-
+    rsg_interface(RSG),
+    jpl_call(RSG,'importPDF', [Path], FileName).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%add_sherpa_object_perception(_, 'Foo').
+%add_sherpa_object_perception('Bar', _ ).
+%geo_reference_system_type(wgs_84,'WGS_84').
+
+%get rsg geo information of given id  and assert it inside knowrob
 add_rsg_point(Id,[Longitude,Latidute],Attr, Perception):-
-    rdf_instance_from_class('http://knowrob.org/kb/knowrob.owl#GIS-Coordinate', Event),
+  rdf_instance_from_class('http://knowrob.org/kb/knowrob.owl#GIS-Coordinate', Event),
   rdf_assert(Event, rdf:type, 'http://knowrob.org/kb/knowrob.owl#GIS-Coordinate').
   
-rsg_pose(From,To,PoseMat):-
+rsg_pose(FromID,ToID,PoseMat):-
   rsg_interface(RSG),
-  jpl_call(RSG,'queryTransform', 
-  [From,To], JplArr),
+  jpl_call(RSG,'queryTransform', [FromID,ToID], JplArr),
   jpl_array_to_list(JplArr, PoseMat).
   
 
 
   
   
-create_human_detection_perception(_,_,_,1) :-
-fail.
-
-
-create_sherpa_event(EventClass,GeoPose,UUID,Time,Props,EventInst) :-
-fail.
+%create_human_detection_perception(_,_,_,1) :- fail.
+%create_sherpa_event(EventClass,GeoPose,UUID,Time,Props,EventInst) :- fail.
 
 
 
@@ -108,12 +136,9 @@ create_sherpa_event_instance(EventType, TimePoint,Event) :-
 %  nth0(0, PerceptionTypes, PType),
   atom_concat('http://knowrob.org/kb/knowrob.owl#', EventType, EClass),
   rdf_instance_from_class(EClass, Event),
-  rdf_assert(Event, rdf:type, EClass),
-
+  rdf_assert(Event, rdf:type, EClass),-
   rdf_assert(Event, knowrob:startTime, TimePoint).
   
-  
-geo_reference_system_type(wgs_84,'WGS_84').
   
   
 %%get height at

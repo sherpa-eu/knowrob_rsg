@@ -25,8 +25,8 @@ import org.ros.node.NodeMain;
 import org.ros.node.topic.Subscriber;
 
 import java.util.List;
-
 import javax.vecmath.Matrix4d;
+import java.util.UUID;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -55,7 +55,7 @@ public class KB2RSG extends AbstractNodeMain {
       			"\"idReferenceNode\": \""+ref_id+"\","+
       			"\"timeStamp\": {"+
       			"	\"@stamptype\": \"TimeStampDate\","+
-      		"		\"stamp\": \"2015-11-09T16:16:44Z\","+
+      		"		\"stamp\": \"" + time + "\","+
       		"		} "+
 		"}";
       ZMQ.send(sc,data.getBytes(ZMQ.CHARSET),data.length(),0);
@@ -85,6 +85,62 @@ public class KB2RSG extends AbstractNodeMain {
 			  r2.getDouble(0),r2.getDouble(1),r2.getDouble(2),r2.getDouble(3),
 			  r3.getDouble(0),r3.getDouble(1),r3.getDouble(2),r3.getDouble(3)};
       return pose_arr;
+  }
+
+  private String randomStringGenerator()
+  {
+	String uuid = UUID.randomUUID().toString();
+	System.out.println("uuid = " + uuid);
+	return uuid;
+  }
+  
+  public String insertTransform(String id, String ref_id,String time, float[] pose_arr){
+      String new_id = randomStringGenerator();
+      String transform_query = "{ "+
+      			"\"@worldmodeltype\": \"RSGQuery\","+
+      			"\"operation\": \"CREATE\","+
+      			"\"node\": " + "{"
+				+ "\"@graphtype\":\"Connection\", "
+				+ "\"@semanticContext\":\"Transform\", "
+				+ "\"id\":" + new_id + ", "
+				+ "\"attributes\": ["  
+					+ "{\"key\": \"tf:type\", \"value\": \"" + "wgs84" +"\"}"
+ 				+ "],"
+				+ "\"sourceIds\": ["  
+					+ "\"" + ref_id + "\""
+ 				+ "]," 
+				+ "\"targetIds\": ["  
+					+ "\"" + id + "\""
+ 				+ "],"
+				+ "\"history\": ["  
+					+ "{"	
+						+ "\"stamp\":" 
+						+ "{"
+							+ "\"@stamptype\": \"TimeStampDate\","
+							+ "\"stamp\":" + time
+						+ "},"
+						+ "\"transform\":" 
+						+ "{"
+							+ "\"type\": \"HomogeneousMatrix44\","
+							+ "\"unit\": \"latlon\","
+							+ "\"matrix\": [" 
+								+ "[" + pose_arr[0] + pose_arr[1] + pose_arr[2] + pose_arr[3] + "],"
+								+ "[" + pose_arr[4] + pose_arr[5] + pose_arr[6] + pose_arr[7] + "],"
+								+ "[" + pose_arr[8] + pose_arr[9] + pose_arr[10] + pose_arr[11] + "],"
+								+ "[" + pose_arr[12] + pose_arr[13] + pose_arr[14] + pose_arr[15] + "]"
+							+ "]"
+						+ "}"
+					+ "}"
+ 				+ "],"
+			+ "},"  
+			+ "\"parentId\": \"853cb0f0-e587-4880-affe-90001da1262d\""
+		+ "}";
+      ZMQ.send(sc,transform_query.getBytes(ZMQ.CHARSET),transform_query.length(),0);
+      Msg msg = ZMQ.recv(sc, 0);
+      
+      JSONObject jsonObject = JSONObject.fromObject(new String(msg.data()));
+      
+      return new_id;
   }
   
   
