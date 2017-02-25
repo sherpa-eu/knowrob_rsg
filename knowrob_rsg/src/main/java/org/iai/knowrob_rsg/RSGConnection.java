@@ -236,6 +236,15 @@ public class RSGConnection{
       	return new_id;
   }
 
+  public String insertHumanCommand(String command, String agent_name, String genius_id){
+        float[] cp = new float[3];
+	cp[0] = 0;
+        cp[1] = 0;
+        cp[2] = 0;
+
+	return insertHumanCommand(command, cp, agent_name, "true", genius_id);
+  }
+
   public String insertCommandInterpretation(String agent_name, String interpretation_success, String genius_id, String action_name, float[] action_parameters){
 	String new_id = randomStringGenerator();
 	String artva_query = "{ "+
@@ -338,6 +347,37 @@ public class RSGConnection{
                         "\"query\": \"GET_NODES\","
 			+ "\"attributes\": ["  
 					+ "{\"key\": \"gis:origin\", \"value\": \"" + "wgs84" +"\"}"
+ 				+ "]"
+                + "}";
+
+        System.out.println("Sendinging Request: \n"+data);
+        int result = ZMQ.send(sc,data.getBytes(ZMQ.CHARSET),data.length(),0);
+        System.out.println("Sended \n"+result + " bytes");
+      
+        System.out.println("Waiting for Reply");
+        Msg msg = ZMQ.recv(sc, 0);
+
+        System.out.println("received reply");
+        JSONObject jsonObject = JSONObject.fromObject(new String(msg.data()));
+	returnedRootId = jsonObject.getJSONArray("ids").getString(0);
+
+	return returnedRootId;
+  }
+
+  public String queryBusyGenius(String name){
+        ctx = ZMQ.init(1);
+
+
+  	sc = ZMQ.socket(ctx, ZMQ.ZMQ_REQ);
+  	boolean rc = ZMQ.connect(sc, "tcp://127.0.0.1:22422");
+
+        String returnedRootId;
+
+        String data= "{ "+
+      			"\"@worldmodeltype\": \"RSGQuery\"," +
+                        "\"query\": \"GET_NODES\","
+			+ "\"attributes\": ["  
+					+ "{\"key\": \"sherpa:agent_name\", \"value\": \"" + name +"\"}"
  				+ "]"
                 + "}";
 
